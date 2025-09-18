@@ -7,6 +7,7 @@ import 'package:taskflow/tasks/data/task_repository.dart';
 import 'package:taskflow/tasks/logic/tasks_cubit.dart';
 import 'package:taskflow/weather/logic/weather_cubit.dart';
 import 'package:taskflow/weather/weather_service.dart';
+import 'package:taskflow/weather/api_key_service.dart';
 import 'package:taskflow/main_screen.dart';
 
 Future<void> main() async {
@@ -21,6 +22,9 @@ Future<void> main() async {
     database: database,
     notificationService: notificationService,
   );
+
+  final apiKeyService = ApiKeyService();
+  final weatherService = WeatherService(); // WeatherService no longer needs apiKey in constructor
 
   runApp(
     RepositoryProvider.value(
@@ -38,9 +42,8 @@ Future<void> main() async {
             ),
           ),
           BlocProvider(
-            create: (context) => WeatherCubit(
-              (apiKey) => WeatherService(apiKey: apiKey),
-            )..fetchWeather(),
+            create: (context) => WeatherCubit(weatherService, apiKeyService)
+              ..fetchWeather(),
           ),
         ],
         child: const MyApp(),

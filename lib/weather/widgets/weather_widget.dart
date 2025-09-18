@@ -25,7 +25,7 @@ class _WeatherWidgetState extends State<WeatherWidget> {
   Widget build(BuildContext context) {
     return BlocBuilder<WeatherCubit, WeatherState>(
       builder: (context, state) {
-        if (state.apiKey == null || state.apiKey!.isEmpty) {
+        if (state is WeatherApiKeyRequired) {
           return _buildApiKeyInput(context);
         }
         if (state is WeatherLoading) {
@@ -58,7 +58,7 @@ class _WeatherWidgetState extends State<WeatherWidget> {
         if (state is WeatherError) {
           final isLocationServiceError = state.message.contains('Usługi lokalizacji są wyłączone');
           final isLocationPermissionError = state.message.contains('Odmówiono uprawnień');
-          final isApiKeyMissingError = state.message.contains('Proszę podać klucz API WeatherAPI.');
+          final isApiKeyMissingError = state.message.contains('API key not found'); // Updated message check
 
           if (isApiKeyMissingError) {
             return _buildApiKeyInput(context, errorMessage: state.message);

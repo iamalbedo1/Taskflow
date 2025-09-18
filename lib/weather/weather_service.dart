@@ -1,19 +1,22 @@
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:taskflow/weather/api_key_service.dart';
 
 class WeatherService {
-  final String _apiKey;
-  WeatherService({required String apiKey}) : _apiKey = apiKey;
-
-
+  final ApiKeyService _apiKeyService = ApiKeyService();
   final String _baseUrl = 'https://api.weatherapi.com/v1/current.json';
 
   Future<Map<String, dynamic>> fetchWeather() async {
     try {
+      final apiKey = await _apiKeyService.getApiKey();
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception('API key not found. Please set it first.');
+      }
+
       Position position = await _determinePosition();
 
-      final url = '$_baseUrl?key=$_apiKey&q=${position.latitude},${position.longitude}';
+      final url = '$_baseUrl?key=$apiKey&q=${position.latitude},${position.longitude}';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
